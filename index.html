@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>ドキュメントスキャナー</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>ドキュメントスキャナー</h1>
+    <p class="subtitle">テキスト層付きPDFを1枚生成します</p>
+  </header>
+
+  <main id="app">
+
+    <!-- 起動前の警告(非HTTPS等) -->
+    <div id="insecure-warning" class="banner banner-warn hidden">
+      カメラを使うには HTTPS(または localhost)での接続が必要です。
+    </div>
+
+    <!-- 1. スタート画面 -->
+    <section id="screen-start" class="screen">
+      <p class="lead">書類全体が枠に収まるように、明るい場所で撮影してください。</p>
+      <button id="btn-start-camera" class="btn btn-primary">カメラを起動</button>
+      <div id="camera-error" class="banner banner-error hidden"></div>
+    </section>
+
+    <!-- 2. カメラ画面 -->
+    <section id="screen-camera" class="screen hidden">
+      <div class="camera-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <div class="guide-frame"></div>
+      </div>
+      <div class="controls">
+        <button id="btn-cancel-camera" class="btn btn-secondary">キャンセル</button>
+        <button id="btn-capture" class="btn btn-primary btn-large">撮影</button>
+      </div>
+    </section>
+
+    <!-- 3. プレビュー画面 -->
+    <section id="screen-preview" class="screen hidden">
+      <div class="preview-wrap">
+        <img id="preview-img" alt="撮影した書類のプレビュー" />
+      </div>
+      <div class="controls">
+        <button id="btn-retake" class="btn btn-secondary">撮り直す</button>
+        <button id="btn-run-ocr" class="btn btn-primary">この写真で文字認識する</button>
+      </div>
+    </section>
+
+    <!-- 4. 処理中画面 -->
+    <section id="screen-processing" class="screen hidden">
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="processing-label">文字を認識しています…</p>
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <p id="progress-pct" class="progress-pct">0%</p>
+    </section>
+
+    <!-- 5. 失敗画面(70%超で拒否) -->
+    <section id="screen-rejected" class="screen hidden">
+      <div class="result-icon result-icon-fail">✕</div>
+      <h2>スキャンできませんでした</h2>
+      <p>認識できなかった文字の割合が <strong id="rejected-rate">--</strong> でした(基準:70%以下)。</p>
+      <p class="hint">明るい場所で、書類を正面から大きく・水平に写して再度お試しください。ピント合わせのため少し離れてから撮ると安定します。</p>
+      <div class="controls">
+        <button id="btn-retry-from-rejected" class="btn btn-primary">再撮影する</button>
+      </div>
+    </section>
+
+    <!-- 6. 成功画面 -->
+    <section id="screen-success" class="screen hidden">
+      <div class="result-icon result-icon-ok">✓</div>
+      <h2>PDFを生成しました</h2>
+      <p>文字認識の成功率: <strong id="success-rate">--</strong></p>
+      <div class="controls">
+        <a id="btn-download" class="btn btn-primary" download>PDFをダウンロード</a>
+        <button id="btn-scan-again" class="btn btn-secondary">もう一度スキャンする</button>
+      </div>
+    </section>
+
+  </main>
+
+  <canvas id="capture-canvas" class="hidden"></canvas>
+  <canvas id="ocr-canvas" class="hidden"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
