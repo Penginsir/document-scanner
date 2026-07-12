@@ -7,8 +7,9 @@
 // 単語ごとのOCR信頼度(0-100)がこの値未満なら「認識失敗」として扱う
 const WORD_CONFIDENCE_THRESHOLD = 60;
 
-// 失敗文字数の割合がこれを超えたらスキャンを拒否する(通常の品質ゲート)
-const MAX_FAILURE_RATE = 0.70;
+// 失敗文字数の割合がこれを超えたらスキャンを拒否する
+// = 認識成功率が70%未満(100% - MAX_FAILURE_RATE)のスキャンは保存させない
+const MAX_FAILURE_RATE = 0.30;
 
 // OCR言語(日本語 + 英語)
 const OCR_LANGS = "jpn+eng";
@@ -317,7 +318,7 @@ async function dataUrlToArrayBuffer(dataUrl) {
 }
 
 async function buildSearchablePdf({ jpegDataUrl, imgWidth, imgHeight, words }) {
-  const { PDFDocument, TextRenderingMode } = PDFLib;
+  const { PDFDocument } = PDFLib;
 
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(fontkit);
@@ -363,12 +364,15 @@ async function buildSearchablePdf({ jpegDataUrl, imgWidth, imgHeight, words }) {
     const yPt = pageHeight - bbox.y1 * scale;
 
     try {
+      // pdf-lib の drawText() に "renderMode" オプションは存在しない(黙って無視される)ため、
+      // 透明度0(ExtGState /ca 0)で視覚的に不可視化する。Tj自体は通常どおり出力されるため
+      // 検索・選択・コピーは可能なまま。
       page.drawText(text, {
         x: xPt,
         y: yPt,
         size: fontSize,
         font,
-        renderMode: TextRenderingMode.Invisible,
+        opacity: 0,
       });
     } catch {
       // フォントが対応しない文字が含まれる単語はテキスト層から除外する
