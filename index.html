@@ -57,11 +57,11 @@
       <p id="progress-pct" class="progress-pct">0%</p>
     </section>
 
-    <!-- 5. 失敗画面(70%超で拒否) -->
+    <!-- 5. 失敗画面(失敗率30%超で拒否 = 成功率70%未満) -->
     <section id="screen-rejected" class="screen hidden">
       <div class="result-icon result-icon-fail">✕</div>
       <h2>スキャンできませんでした</h2>
-      <p>認識できなかった文字の割合が <strong id="rejected-rate">--</strong> でした(基準:70%以下)。</p>
+      <p>認識できなかった文字の割合が <strong id="rejected-rate">--</strong> でした(基準:認識成功率70%以上)。</p>
       <p class="hint">明るい場所で、書類を正面から大きく・水平に写して再度お試しください。ピント合わせのため少し離れてから撮ると安定します。</p>
       <div class="controls">
         <button id="btn-retry-from-rejected" class="btn btn-primary">再撮影する</button>
